@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SBOM Guardian — 3D Cyber Software Bill of Materials & Security Intelligence</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+  
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://unpkg.com/3d-force-graph@1.73.4/dist/3d-force-graph.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.globe.min.js"></script>
+  <script src="/static/vanta-init.js"></script>
+  <script src="/static/cursor.js"></script>
+  
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div id="vanta-bg"></div>
+
+  <div class="app-container">
+    <header class="header cyber-glow-box animate-in-1">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="glow-text">SBOM GUARDIAN <span class="cyber-badge">3D WebGL</span></h1>
+          <p id="active-project-label">Active Target: <span id="project-name" class="highlight">Python E-Commerce Backend</span></p>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <button id="btn-export-sbom" class="btn btn-primary cyber-btn" title="Export CycloneDX JSON">
+          Download CycloneDX SBOM
+        </button>
+        <button id="btn-export-pdf" class="btn btn-secondary cyber-btn" title="Export PDF Report" style="margin-left: 10px;">
+          Export PDF Report
+        </button>
+      </div>
+    </header>
+
+    <section class="upload-section animate-in-2">
+      <div id="dropzone" class="dropzone cyber-glow-box" data-tilt data-tilt-max="4" data-tilt-glare data-tilt-max-glare="0.1">
+        <input type="file" id="file-input" style="display: none;" accept=".txt,.json">
+        <div class="dropzone-icon-wrapper">
+          <div class="dropzone-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+        </div>
+        <h3>Drop Software Manifest to Scan</h3>
+        <p>Supports <code>requirements.txt</code> (Python) and <code>package.json</code> (Node.js)</p>
+        <span class="badge-pill pulse-pill">Click to Browse File</span>
+      </div>
+
+      <div class="samples-card cyber-glow-box" data-tilt data-tilt-max="2" data-tilt-glare data-tilt-max-glare="0.1">
+        <div class="samples-card-header">
+          <h3>⚡ 1-Click Demo Presets</h3>
+          <span class="sub-label">Instant Live Ingestion</span>
+        </div>
+        <p>Don't have a file ready? Click a sample below to test the 3D visualization instantly:</p>
+        <div class="sample-buttons">
+          <button id="btn-sample-python" class="sample-btn">
+            <div class="sample-btn-content">
+              <span class="sample-icon">🐍</span>
+              <div>
+                <span class="sample-title">Python E-Commerce</span>
+                <span class="sample-subtitle">Flask, Celery, Django</span>
+              </div>
+            </div>
+          </button>
+          <button id="btn-sample-node" class="sample-btn">
+            <div class="sample-btn-content">
+              <span class="sample-icon">🟢</span>
+              <div>
+                <span class="sample-title">Node.js Gateway</span>
+                <span class="sample-subtitle">Express, Axios, Lodash</span>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="metrics-grid animate-in-3 scroll-reveal">
+      <div class="metric-card cyber-glow-box" data-tilt data-tilt-scale="1.02" data-tilt-max="5" data-tilt-glare data-tilt-max-glare="0.15">
+        <div class="metric-top">
+          <span class="metric-title">Total Packages</span>
+          <span class="metric-icon">📦</span>
+        </div>
+        <span id="metric-total" class="metric-number">0</span>
+        <span class="metric-footer">Analyzed Components</span>
+      </div>
+
+      <div class="metric-card danger cyber-glow-box" data-tilt data-tilt-scale="1.02" data-tilt-max="5" data-tilt-glare data-tilt-max-glare="0.15">
+        <div class="metric-top">
+          <span class="metric-title">Vulnerabilities Found</span>
+          <span class="metric-icon">🚨</span>
+        </div>
+        <span id="metric-vulnerable" class="metric-number">0</span>
+        <span class="metric-footer">Known CVE Threats Detected</span>
+      </div>
+
+      <div class="metric-card success cyber-glow-box" data-tilt data-tilt-scale="1.02" data-tilt-max="5" data-tilt-glare data-tilt-max-glare="0.15">
+        <div class="metric-top">
+          <span class="metric-title">Clean Packages</span>
+          <span class="metric-icon">🛡️</span>
+        </div>
+        <span id="metric-clean" class="metric-number">0</span>
+        <span class="metric-footer">Zero Known Vulnerabilities</span>
+      </div>
+    </section>
+
+    <main class="main-workspace animate-in-4 scroll-reveal">
+      <div class="card graph-card cyber-glow-box">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2>🌐 3D Component Visualization</h2>
+            <span class="graph-hint">🖱️ Left Click: Rotate 360° | Right Click: Pan | Scroll: Zoom</span>
+          </div>
+          <div class="graph-actions">
+            <button id="btn-toggle-dim" class="graph-tool-btn active">🌐 3D View</button>
+            <button id="btn-toggle-rotate" class="graph-tool-btn active">Auto-Rotate</button>
+            <button id="btn-reset-camera" class="graph-tool-btn">Center View</button>
+            <div class="graph-legend">
+              <span class="dot root"></span> Root
+              <span class="dot danger"></span> Vulnerable
+              <span class="dot success"></span> Clean
+            </div>
+          </div>
+        </div>
+        <div id="graph-container" class="graph-container"></div>
+      </div>
+    </main>
+    <section class="details-section scroll-reveal">
+      <div class="card table-card cyber-glow-box">
+        <div class="card-header">
+          <h2>📋 Software Components & Remediation Roadmap</h2>
+          <span id="table-count" class="badge-pill">0 Packages</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Package Name</th>
+                <th>Version</th>
+                <th>Ecosystem</th>
+                <th>License</th>
+                <th>Security Status</th>
+                <th>Recommended Action</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <div id="inspector-panel" class="inspector-panel">
+      <div class="inspector-header">
+        <div>
+          <span class="inspector-tag">COMPONENT DETAILS</span>
+          <h3 id="inspect-name">Package Name</h3>
+        </div>
+        <button id="btn-close-inspector" class="close-btn">&times;</button>
+      </div>
+      <div class="inspector-body">
+        <div class="info-group">
+          <label>Installed Version</label>
+          <span id="inspect-version" class="code-badge">v1.0.0</span>
+        </div>
+        <div class="info-group">
+          <label>Declared License</label>
+          <span id="inspect-license" class="badge-pill">MIT</span>
+        </div>
+        <div class="info-group">
+          <label>Security Status</label>
+          <div id="inspect-status">Clean</div>
+        </div>
+        <div class="info-group">
+          <label>Anomaly Context</label>
+          <div id="inspect-context" style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">No context available.</div>
+        </div>
+        <div class="info-group">
+          <label>Recommended Remediation</label>
+          <div id="inspect-fix" class="fix-box">Up to date</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="processing-overlay" class="processing-overlay">
+    <div class="loader cyber-loader"></div>
+    <h2 class="glow-text">Scanning Supply Chain...</h2>
+    <p>Analyzing dependencies against global vulnerability databases</p>
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
