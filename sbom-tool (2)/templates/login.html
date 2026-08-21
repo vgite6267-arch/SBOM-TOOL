@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - SBOM Guardian</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.globe.min.js"></script>
+  <script src="/static/vanta-init.js"></script>
+  <script src="/static/cursor.js"></script>
+  
+  <style>
+    :root {
+      --bg-dark: #070a13;
+      --cyan: #38bdf8;
+      --cyan-bright: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.4);
+      --font-sans: 'Inter', sans-serif;
+      --font-display: 'Orbitron', sans-serif;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body, html {
+      width: 100%;
+      height: 100%;
+      font-family: var(--font-sans);
+      background-color: var(--bg-dark);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    #matrix-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    
+    .login-container {
+      position: relative;
+      z-index: 1;
+      background: rgba(14, 20, 36, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 20px;
+      padding: 40px 50px;
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 20px var(--cyan-glow);
+      animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      transform: translateY(40px);
+      opacity: 0;
+    }
+    
+    @keyframes slideUpFade {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .logo-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(168, 85, 247, 0.2));
+      border: 1px solid var(--cyan);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cyan-bright);
+      box-shadow: 0 0 24px var(--cyan-glow);
+      margin: 0 auto 16px;
+    }
+    
+    h1 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      color: #fff;
+      text-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
+      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+    }
+    
+    p.subtitle {
+      color: #94a3b8;
+      font-size: 13px;
+      margin-bottom: 30px;
+    }
+    
+    .input-group {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    
+    .input-group label {
+      display: block;
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .input-group input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    
+    .input-group input:focus {
+      border-color: var(--cyan-bright);
+      box-shadow: 0 0 12px var(--cyan-glow);
+      background: rgba(0, 0, 0, 0.5);
+    }
+    
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      color: #ffffff;
+      box-shadow: 0 4px 16px var(--cyan-glow);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 24px;
+      margin-bottom: 20px;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 240, 255, 0.5);
+      background: linear-gradient(135deg, #0369a1, #0891b2);
+    }
+    
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: #64748b;
+      font-size: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .divider:not(:empty)::before { margin-right: .5em; }
+    .divider:not(:empty)::after { margin-left: .5em; }
+    
+    .google-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .google-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .google-icon {
+      width: 18px;
+      height: 18px;
+    }
+    
+    .loader {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(0, 0, 0, 0.1);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    .loader.dark {
+      border-top-color: #38bdf8;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+  </style>
+</head>
+<body>
+
+  <div id="vanta-bg"></div>
+
+  <div class="login-container">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="m9 12 2 2 4-4"/>
+      </svg>
+    </div>
+    <h1>SBOM GUARDIAN</h1>
+    <p class="subtitle">Secure Supply Chain Intelligence</p>
+    
+    <form id="login-form">
+      <div class="input-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="admin@sbom-guardian.dev" required>
+      </div>
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="••••••••" required>
+      </div>
+      
+      <button type="submit" class="btn-primary" id="login-btn">
+        <span id="btn-text">Sign In securely</span>
+        <div class="loader" id="btn-loader"></div>
+      </button>
+    </form>
+    
+    <div class="divider">OR</div>
+    
+    <button class="google-btn" id="google-login-btn" type="button">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo" class="google-icon" id="g-btn-icon">
+      <span id="g-btn-text">Continue with Google</span>
+      <div class="loader dark" id="g-btn-loader"></div>
+    </button>
+  </div>
+
+  <script>
+    function simulateLogin(btnElement, textElement, loaderElement, iconElement) {
+      if (iconElement) iconElement.style.display = 'none';
+      textElement.textContent = 'Authenticating...';
+      loaderElement.style.display = 'block';
+      btnElement.style.pointerEvents = 'none';
+      
+      setTimeout(() => {
+        textElement.textContent = 'Success! Redirecting...';
+        if (iconElement) {
+          textElement.style.color = '#38bdf8';
+        }
+        
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 600);
+      }, 1200);
+    }
+
+    // Handle Email Login
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault(); // prevent form submission reload
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('password').value;
+      
+      if(email && pass) {
+        simulateLogin(
+          document.getElementById('login-btn'),
+          document.getElementById('btn-text'),
+          document.getElementById('btn-loader')
+        );
+      }
+    });
+
+    // Handle Mock Google Login
+    document.getElementById('google-login-btn').addEventListener('click', function() {
+      simulateLogin(
+        this,
+        document.getElementById('g-btn-text'),
+        document.getElementById('g-btn-loader'),
+        document.getElementById('g-btn-icon')
+      );
+    });
+  </script>
+
+</body>
+</html>
